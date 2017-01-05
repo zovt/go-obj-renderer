@@ -113,7 +113,7 @@ func loadShader(p string, shaderType uint32) (uint32, error) {
 	return shader, nil
 }
 
-func Render(obj objs.ObjData) {
+func Render(obj objs.ObjData, ch <-chan func(mgl32.Vec3, mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3)) {
 	// configure VAO and VBO
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
@@ -140,11 +140,13 @@ func Render(obj objs.ObjData) {
 	gl.BindVertexArray(0)
 
 	// Uniforms
-	proj := mgl32.Perspective(mgl32.DegToRad(90), float32(w)/h, 0.1, 10.0)
+	proj := mgl32.Perspective(mgl32.DegToRad(90), float32(w)/h, 0.1, 100.0)
 	projU := gl.GetUniformLocation(prog, gl.Str("projection\x00"))
 	gl.UniformMatrix4fv(projU, 1, false, &proj[0])
 
-	cam := mgl32.LookAtV(mgl32.Vec3{2, 3, 5}, mgl32.Vec3{0, 0, 0}, mgl32.Vec3{0, 1, 0})
+	from := mgl32.Vec3{2, 3, 5}
+	at := mgl32.Vec3{0, 0, 0}
+	cam := mgl32.LookAtV(from, at, mgl32.Vec3{0, 1, 0})
 	camU := gl.GetUniformLocation(prog, gl.Str("camera\x00"))
 	gl.UniformMatrix4fv(camU, 1, false, &cam[0])
 
@@ -159,9 +161,18 @@ func Render(obj objs.ObjData) {
 
 	// Draw loop
 	for !window.ShouldClose() {
+		select {
+		case f := <-ch:
+			from, at = f(from, at)
+		default:
+		}
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 		gl.UseProgram(prog)
+
+		cam := mgl32.LookAtV(from, at, mgl32.Vec3{0, 1, 0})
+		gl.UniformMatrix4fv(camU, 1, false, &cam[0])
+
 		gl.BindVertexArray(vao)
 		gl.DrawElements(gl.TRIANGLES, int32(len(eData)), gl.UNSIGNED_INT, gl.PtrOffset(0))
 		gl.BindVertexArray(0)

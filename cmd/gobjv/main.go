@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/zovt/go-obj-renderer/pkg/graphics"
 	"github.com/zovt/go-obj-renderer/pkg/objs"
 	"github.com/zovt/go-obj-renderer/pkg/web"
@@ -19,8 +20,11 @@ func main() {
 		return
 	}
 
+	// Create communication channel
+	ch := make(chan func(a, b mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3))
+
 	// Start web server
-	go web.Start()
+	go web.Start(ch)
 	defer web.Close()
 
 	// TODO: Implement full obj spec
@@ -29,5 +33,5 @@ func main() {
 	graphics.Init()
 	defer graphics.Close()
 	graphics.LoadShaders(*vp, *fp)
-	graphics.Render(obj)
+	graphics.Render(obj, ch)
 }

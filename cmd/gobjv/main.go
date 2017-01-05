@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/zovt/go-obj-renderer/pkg/graphics"
 	"github.com/zovt/go-obj-renderer/pkg/objs"
+	"github.com/zovt/go-obj-renderer/pkg/web"
 )
 
 func main() {
@@ -18,10 +19,13 @@ func main() {
 		return
 	}
 
+	// Start web server
+	go web.Start()
+	defer web.Close()
+
 	// TODO: Implement full obj spec
 	obj := objs.Parse(*path)
-	fmt.Println(obj)
-	// TODO: render obj
+
 	graphics.Init()
 	defer graphics.Close()
 	graphics.LoadShaders(*vp, *fp)

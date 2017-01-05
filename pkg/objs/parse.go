@@ -14,12 +14,12 @@ func check(e error) {
 }
 
 func parseVertex(args []string) Vertex {
-	var nums [4]float64
+	var nums [4]float32
 
 	for i, s := range args {
-		v, err := strconv.ParseFloat(s, 64)
+		v, err := strconv.ParseFloat(s, 32)
 		if err == nil {
-			nums[i] = v
+			nums[i] = float32(v)
 		}
 	}
 
@@ -27,12 +27,12 @@ func parseVertex(args []string) Vertex {
 }
 
 func parseNormal(args []string) Normal {
-	var nums [3]float64
+	var nums [3]float32
 
 	for i, s := range args {
-		v, err := strconv.ParseFloat(s, 64)
+		v, err := strconv.ParseFloat(s, 32)
 		if err == nil {
-			nums[i] = v
+			nums[i] = float32(v)
 		}
 	}
 
@@ -40,12 +40,12 @@ func parseNormal(args []string) Normal {
 }
 
 func parseTexture(args []string) TexCoords {
-	var nums [2]float64
+	var nums [2]float32
 
 	for i, s := range args {
-		v, err := strconv.ParseFloat(s, 64)
+		v, err := strconv.ParseFloat(s, 32)
 		if err == nil {
-			nums[i] = v
+			nums[i] = float32(v)
 		}
 	}
 
@@ -53,23 +53,35 @@ func parseTexture(args []string) TexCoords {
 }
 
 func parseFace(args []string) Face {
-	var vIds []uint
-	var tIds []uint
-	var nIds []uint
+	var vIds []uint32
+	var tIds []uint32
+	var nIds []uint32
 
 	for _, s := range args {
 		sp := strings.Split(s, "/")
-		v, err := strconv.ParseUint(sp[0], 10, 64)
-		check(err)
+		v, err := strconv.ParseUint(sp[0], 10, 32)
+		if err != nil {
+			v = 0
+		}
 
-		t, _ := strconv.ParseUint(sp[1], 10, 64)
-		check(err)
+		vIds = append(vIds, uint32(v))
 
-		n, _ := strconv.ParseUint(sp[2], 10, 64)
-		check(err)
-		vIds = append(vIds, uint(v))
-		tIds = append(tIds, uint(t))
-		nIds = append(nIds, uint(n))
+		if len(sp) == 1 {
+			continue
+		}
+
+		t, err := strconv.ParseUint(sp[1], 10, 32)
+		if err != nil {
+			t = 0
+		}
+
+		n, err := strconv.ParseUint(sp[2], 10, 32)
+		if err != nil {
+			t = 0
+		}
+
+		tIds = append(tIds, uint32(t))
+		nIds = append(nIds, uint32(n))
 	}
 
 	return Face{vIds, tIds, nIds}

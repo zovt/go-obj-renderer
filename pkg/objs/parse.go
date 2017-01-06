@@ -23,7 +23,7 @@ func parseVertex(args []string) Vertex {
 		}
 	}
 
-	return Vertex{nums[0], nums[1], nums[2], nums[3]}
+	return Vertex{nums[0], nums[1], nums[2], nums[3], []uint32{}, 0, 0}
 }
 
 func parseNormal(args []string) Normal {
@@ -36,7 +36,7 @@ func parseNormal(args []string) Normal {
 		}
 	}
 
-	return Normal{nums[0], nums[1], nums[2]}
+	return Normal{nums[0], nums[1], nums[2], 0}
 }
 
 func parseTexture(args []string) TexCoords {
@@ -52,7 +52,7 @@ func parseTexture(args []string) TexCoords {
 	return TexCoords{nums[0], nums[1]}
 }
 
-func parseFace(args []string) Face {
+func parseFace(obj ObjData, idx uint32, args []string) Face {
 	var vIds []uint32
 	var tIds []uint32
 	var nIds []uint32
@@ -64,7 +64,8 @@ func parseFace(args []string) Face {
 			v = 0
 		}
 
-		vIds = append(vIds, uint32(v-1))
+		vIds = append(vIds, uint32(v))
+		obj.Vertices[v-1].faces = append(obj.Vertices[v-1].faces, idx)
 
 		if len(sp) == 1 {
 			continue
@@ -73,6 +74,11 @@ func parseFace(args []string) Face {
 		t, err := strconv.ParseUint(sp[1], 10, 32)
 		if err != nil {
 			t = 0
+		}
+
+		tIds = append(tIds, uint32(t))
+		if t != 0 {
+			obj.Vertices[t-1].tID = uint32(t)
 		}
 
 		if len(sp) == 2 {
@@ -84,8 +90,10 @@ func parseFace(args []string) Face {
 			t = 0
 		}
 
-		tIds = append(tIds, uint32(t-1))
-		nIds = append(nIds, uint32(n-1))
+		nIds = append(nIds, uint32(n))
+		if n != 0 {
+			obj.Vertices[n-1].nID = uint32(n)
+		}
 	}
 
 	return Face{vIds, tIds, nIds}
@@ -99,6 +107,7 @@ func Parse(path string) ObjData {
 	obj := ObjData{}
 
 	scanner := bufio.NewScanner(file)
+	var fIdx uint32
 	for scanner.Scan() {
 		line := strings.Fields(scanner.Text())
 
@@ -115,7 +124,8 @@ func Parse(path string) ObjData {
 		case "vt":
 			obj.TexCoords = append(obj.TexCoords, parseTexture(args))
 		case "f":
-			obj.Faces = append(obj.Faces, parseFace(args))
+			obj.Faces = append(obj.Faces, parseFace(obj, fIdx, args))
+			fIdx++
 		}
 	}
 

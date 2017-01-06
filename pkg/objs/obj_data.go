@@ -3,10 +3,13 @@ package objs
 import "fmt"
 
 type Vertex struct {
-	x float32
-	y float32
-	z float32
-	w float32
+	x     float32
+	y     float32
+	z     float32
+	w     float32
+	faces []uint32
+	nID   uint32
+	tID   uint32
 }
 
 func (v Vertex) String() string {
@@ -29,9 +32,10 @@ type TexCoords struct {
 }
 
 type Normal struct {
-	x float32
-	y float32
-	z float32
+	x   float32
+	y   float32
+	z   float32
+	vID uint32
 }
 
 type ObjData struct {

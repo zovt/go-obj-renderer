@@ -35,7 +35,7 @@ func (obj ObjData) ElementBufferData() []uint32 {
 	offset := 0
 	for _, f := range obj.Faces {
 		for _, n := range f.vIds {
-			indices[offset] = n
+			indices[offset] = n - 1
 			offset += 1
 		}
 	}

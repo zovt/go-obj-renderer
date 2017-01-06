@@ -34,21 +34,15 @@ func moveY(from, at mgl32.Vec3, dist float32) (mgl32.Vec3, mgl32.Vec3) {
 
 func rotX(from, at mgl32.Vec3, rad float32) (mgl32.Vec3, mgl32.Vec3) {
 	d := from.Sub(at)
-	theta := float32(math.Atan(float64(d.Z() / d.X())))
-	rotT := mgl32.HomogRotate3DY(-theta)
-	rotP := mgl32.HomogRotate3DY(theta)
 	rotY := mgl32.HomogRotate3DY(rad)
-	rot := rotP.Mul4(rotY).Mul4(rotT)
-	return rot.Mul4x1(d.Vec4(1)).Vec3().Add(at), at
+	return rotY.Mul4x1(d.Vec4(1)).Vec3().Add(at), at
 }
 
 func rotY(from, at mgl32.Vec3, rad float32) (mgl32.Vec3, mgl32.Vec3) {
 	d := from.Sub(at)
-	theta := float32(math.Atan(float64(d.Z() / d.Y())))
-	rotT := mgl32.HomogRotate3DX(-theta)
-	rotP := mgl32.HomogRotate3DX(theta)
-	rotZ := mgl32.HomogRotate3DX(rad)
-	rot := rotP.Mul4(rotZ).Mul4(rotT)
+	theta := float32(math.Atan(float64(d.X() / d.Z())))
+	axis := mgl32.HomogRotate3DY(theta).Mul4x1(mgl32.Vec4{0, 0, 1, 0})
+	rot := mgl32.HomogRotate3D(rad, axis.Vec3())
 	return rot.Mul4x1(d.Vec4(1)).Vec3().Add(at), at
 }
 

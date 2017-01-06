@@ -7,7 +7,6 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/zovt/go-obj-renderer/pkg/objs"
 	"io/ioutil"
-	"runtime"
 	"strings"
 )
 
@@ -18,9 +17,6 @@ var window *glfw.Window
 var prog uint32
 
 func Init() {
-	// Lock OS Thread for GLFW events
-	runtime.LockOSThread()
-
 	if e := glfw.Init(); e != nil {
 		panic(e)
 	}

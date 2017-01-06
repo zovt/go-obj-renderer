@@ -7,9 +7,11 @@ import (
 	"github.com/zovt/go-obj-renderer/pkg/graphics"
 	"github.com/zovt/go-obj-renderer/pkg/objs"
 	"github.com/zovt/go-obj-renderer/pkg/web"
+	"runtime"
 )
 
 func main() {
+	runtime.LockOSThread()
 	var path = flag.String("path", "", "The path of the obj file")
 	var fp = flag.String("frag", "shaders/simple.glslf", "The fragment shader")
 	var vp = flag.String("vert", "shaders/simple.glslv", "The vertex shader")

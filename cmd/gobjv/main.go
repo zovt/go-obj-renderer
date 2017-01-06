@@ -11,7 +11,9 @@ import (
 )
 
 func main() {
+	// Lock the main OS thread to prevent some weird GLFW errors
 	runtime.LockOSThread()
+
 	var path = flag.String("path", "", "The path of the obj file")
 	var fp = flag.String("frag", "shaders/simple.glslf", "The fragment shader")
 	var vp = flag.String("vert", "shaders/simple.glslv", "The vertex shader")
@@ -22,14 +24,11 @@ func main() {
 		return
 	}
 
-	// Create communication channel
 	ch := make(chan func(a, b mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3))
 
-	// Start web server
 	go web.Start(ch)
 	defer web.Close()
 
-	// TODO: Implement full obj spec
 	obj := objs.Parse(*path)
 
 	graphics.Init()

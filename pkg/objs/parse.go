@@ -75,6 +75,10 @@ func parseFace(args []string) Face {
 			t = 0
 		}
 
+		if len(sp) == 2 {
+			continue
+		}
+
 		n, err := strconv.ParseUint(sp[2], 10, 32)
 		if err != nil {
 			t = 0
@@ -104,7 +108,6 @@ func Parse(path string) ObjData {
 
 		args := line[1:]
 		switch line[0] {
-		case "#":
 		case "v":
 			obj.Vertices = append(obj.Vertices, parseVertex(args))
 		case "vn":

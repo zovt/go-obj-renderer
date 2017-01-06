@@ -45,7 +45,6 @@ func rotX(from, at mgl32.Vec3, rad float32) (mgl32.Vec3, mgl32.Vec3) {
 func rotY(from, at mgl32.Vec3, rad float32) (mgl32.Vec3, mgl32.Vec3) {
 	d := from.Sub(at)
 	theta := float32(math.Atan(float64(d.Z() / d.Y())))
-	fmt.Println(theta)
 	rotT := mgl32.HomogRotate3DX(-theta)
 	rotP := mgl32.HomogRotate3DX(theta)
 	rotZ := mgl32.HomogRotate3DX(rad)
@@ -54,70 +53,56 @@ func rotY(from, at mgl32.Vec3, rad float32) (mgl32.Vec3, mgl32.Vec3) {
 }
 
 func cmdHandler(ch chan<- func(a, b mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3)) func(http.ResponseWriter, *http.Request) {
+	cmdHandlers := make(map[string]func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3))
+	cmdHandlers["zoom-in"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return zoom(from, at, 0.5)
+	}
+
+	cmdHandlers["zoom-out"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return zoom(from, at, -0.5)
+	}
+
+	cmdHandlers["left"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return moveX(from, at, -1)
+	}
+
+	cmdHandlers["right"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return moveX(from, at, 1)
+	}
+
+	cmdHandlers["up"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return moveY(from, at, 1)
+	}
+
+	cmdHandlers["down"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return moveY(from, at, -1)
+	}
+	cmdHandlers["rot-left"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return rotX(from, at, mgl32.DegToRad(-10))
+	}
+
+	cmdHandlers["rot-right"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return rotX(from, at, mgl32.DegToRad(10))
+	}
+
+	cmdHandlers["rot-up"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return rotY(from, at, mgl32.DegToRad(-10))
+	}
+
+	cmdHandlers["rot-down"] = func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
+		return rotY(from, at, mgl32.DegToRad(10))
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		cmd := r.URL.Path[len("/cmd/"):]
-
-		switch cmd {
-		case "zoom-in":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return zoom(from, at, 0.5)
-			}
-
-		case "zoom-out":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return zoom(from, at, -0.5)
-			}
-
-		case "left":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return moveX(from, at, -1)
-			}
-
-		case "right":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return moveX(from, at, 1)
-			}
-
-		case "up":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return moveY(from, at, 1)
-			}
-
-		case "down":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return moveY(from, at, -1)
-			}
-		case "rot-left":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return rotX(from, at, mgl32.DegToRad(-10))
-			}
-
-		case "rot-right":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return rotX(from, at, mgl32.DegToRad(10))
-			}
-
-		case "rot-up":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return rotY(from, at, mgl32.DegToRad(-10))
-			}
-
-		case "rot-down":
-			ch <- func(from, at mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3) {
-				return rotY(from, at, mgl32.DegToRad(10))
-			}
-
-		}
-
+		ch <- cmdHandlers[cmd]
 		fmt.Fprintf(w, cmd)
 	}
 }
 
 func Start(ch chan<- func(a, b mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3)) {
 	http.Handle("/", http.FileServer(http.Dir("pkg/web/")))
-
 	http.HandleFunc("/cmd/", cmdHandler(ch))
-
 	http.ListenAndServe(":8080", nil)
 }
 

@@ -7,22 +7,26 @@ type GLData interface {
 }
 
 func (obj ObjData) VBOSize() int {
-	return (len(obj.Vertices) * 4) * 4
+	return (len(obj.Vertices) * 7) * 4
 }
 
 func (obj ObjData) VBOData() []float32 {
-	vertices := make([]float32, len(obj.Vertices)*4)
+	data := make([]float32, len(obj.Vertices)*7)
 
 	offset := 0
 	for _, v := range obj.Vertices {
-		vertices[offset+0] = v.x
-		vertices[offset+1] = v.y
-		vertices[offset+2] = v.z
-		vertices[offset+3] = 1.0
+		data[offset+0] = v.x
+		data[offset+1] = v.y
+		data[offset+2] = v.z
+		data[offset+3] = 1.0
 		offset += 4
+		data[offset+0] = 0
+		data[offset+1] = 0
+		data[offset+2] = 0
+		offset += 3
 	}
 
-	return vertices
+	return data
 }
 
 func (obj ObjData) ElementBufferData() []uint32 {
@@ -31,7 +35,7 @@ func (obj ObjData) ElementBufferData() []uint32 {
 	offset := 0
 	for _, f := range obj.Faces {
 		for _, n := range f.vIds {
-			indices[offset] = n - 1
+			indices[offset] = n
 			offset += 1
 		}
 	}

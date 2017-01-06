@@ -64,7 +64,7 @@ func parseFace(args []string) Face {
 			v = 0
 		}
 
-		vIds = append(vIds, uint32(v))
+		vIds = append(vIds, uint32(v-1))
 
 		if len(sp) == 1 {
 			continue
@@ -80,8 +80,8 @@ func parseFace(args []string) Face {
 			t = 0
 		}
 
-		tIds = append(tIds, uint32(t))
-		nIds = append(nIds, uint32(n))
+		tIds = append(tIds, uint32(t-1))
+		nIds = append(nIds, uint32(n-1))
 	}
 
 	return Face{vIds, tIds, nIds}

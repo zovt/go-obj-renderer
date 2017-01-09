@@ -65,9 +65,11 @@ func parseFace(obj ObjData, idx uint32, args []string) Face {
 		}
 
 		vIds = append(vIds, uint32(v))
-		obj.Vertices[v-1].faces = append(obj.Vertices[v-1].faces, idx)
+		obj.Vertices[v-1].faces = append(obj.Vertices[v-1].faces, idx+1)
 
 		if len(sp) == 1 {
+			tIds = append(tIds, 0)
+			nIds = append(nIds, 0)
 			continue
 		}
 
@@ -82,6 +84,7 @@ func parseFace(obj ObjData, idx uint32, args []string) Face {
 		}
 
 		if len(sp) == 2 {
+			nIds = append(nIds, 0)
 			continue
 		}
 

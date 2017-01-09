@@ -13,7 +13,7 @@ type Vertex struct {
 }
 
 func (v Vertex) String() string {
-	return fmt.Sprintf("[x: %f, y: %f, z: %f, w: %f]", v.x, v.y, v.z, v.w)
+	return fmt.Sprintf("[x: %f, y: %f, z: %f, w: %f, faces: %v, nID: %d, tID: %d]", v.x, v.y, v.z, v.w, v.faces, v.nID, v.tID)
 }
 
 type Face struct {

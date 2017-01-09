@@ -88,8 +88,10 @@ func cmdHandler(ch chan<- func(a, b mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3)) func(h
 	return func(w http.ResponseWriter, r *http.Request) {
 		cmd := r.URL.Path[len("/cmd/"):]
 
-		// TODO: Check that the command exists in the map
-		ch <- cmdHandlers[cmd]
+		if cmd, ok := cmdHandlers[cmd]; ok {
+			ch <- cmd
+		}
+
 		fmt.Fprintf(w, cmd)
 	}
 }

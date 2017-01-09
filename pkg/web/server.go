@@ -87,16 +87,15 @@ func cmdHandler(ch chan<- func(a, b mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3)) func(h
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		cmd := r.URL.Path[len("/cmd/"):]
+
+		// TODO: Check that the command exists in the map
 		ch <- cmdHandlers[cmd]
 		fmt.Fprintf(w, cmd)
 	}
 }
 
-func Start(ch chan<- func(a, b mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3)) {
+func Start(ch chan<- func(a, b mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3)) error {
 	http.Handle("/", http.FileServer(http.Dir("pkg/web/")))
 	http.HandleFunc("/cmd/", cmdHandler(ch))
-	http.ListenAndServe(":8080", nil)
-}
-
-func Close() {
+	return http.ListenAndServe(":8080", nil)
 }

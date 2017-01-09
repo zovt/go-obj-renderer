@@ -26,10 +26,18 @@ func main() {
 
 	ch := make(chan func(a, b mgl32.Vec3) (mgl32.Vec3, mgl32.Vec3))
 
-	go web.Start(ch)
-	defer web.Close()
+	go func() {
+		err := web.Start(ch)
+		if err != nil {
+			fmt.Println("Could not start web server")
+			panic(err)
+		}
+	}()
 
-	obj := objs.Parse(*path)
+	obj, err := objs.Parse(*path)
+	if err != nil {
+		panic(err)
+	}
 
 	graphics.Init()
 	defer graphics.Close()

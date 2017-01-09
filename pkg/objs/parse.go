@@ -102,12 +102,16 @@ func parseFace(obj ObjData, idx uint32, args []string) Face {
 	return Face{vIds, tIds, nIds}
 }
 
-func Parse(path string) ObjData {
-	file, err := os.Open(path)
-	check(err)
-	defer file.Close()
-
+func Parse(path string) (ObjData, error) {
 	obj := ObjData{}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return obj, err
+	}
+
+	// TODO ask about handling error here
+	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	var fIdx uint32
@@ -132,7 +136,9 @@ func Parse(path string) ObjData {
 		}
 	}
 
-	check(scanner.Err())
+	if scanner.Err() != nil {
+		return obj, scanner.Err()
+	}
 
-	return obj
+	return obj, nil
 }

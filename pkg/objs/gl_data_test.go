@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	tri  ObjData = Parse("../../objs/tri.obj")
-	cube ObjData = Parse("../../objs/cube.obj")
+	tri, _  = Parse("../../objs/tri.obj")
+	cube, _ = Parse("../../objs/cube.obj")
 )
 
 func TestVBOSize(t *testing.T) {
